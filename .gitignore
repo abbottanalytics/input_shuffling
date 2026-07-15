@@ -1,0 +1,10 @@
+# Run outputs (timestamped, regenerable)
+runs/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# macOS
+.DS_Store

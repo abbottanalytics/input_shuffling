@@ -1,0 +1,120 @@
+# input_shuffling_v2 — kddcup1998 TARGET_D (regression), fast config (n_shuffles=10)
+# Model: Regression Tree (model_140fdc841477) built by modelkit.run_regression_models
+# (trained on TARGET_B==1 responders, scores all test records).
+# Uses the built-in generic sklearn plugin. Predictions are donation dollars
+# (~4-52), so eps is 0.50 rather than the probability-scale 0.01.
+version: "2.0"
+
+run:
+  name: "input_shuffling_v2_target_d_fast"
+  output_dir: "runs"
+  seed: 12345
+
+data:
+  path: "kddcup1998/runs/model_140fdc841477/scored_test.parquet"
+  format: "parquet"
+
+schema:
+  id_column: "RECORD_ID"
+  target_column: "TARGET_D"
+  target_type: "regression"
+  feature_columns: []                  # [] => auto-load from model_info.json
+  meta_columns: ["STATE", "RFA_2", "TARGET_B"]
+  prediction_columns: []               # [] => derived: TARGET_D_pred
+
+sampling:
+  use: "all"
+
+shuffling:
+  n_shuffles: 10
+  shuffle_scope: "global"
+  shuffle_method: "permute"
+  seed_strategy: "deterministic"
+
+importance:
+  enabled: true
+  eps: 0.50                            # dollars, not probability
+  ranking_stat: "mean_record_iqr"
+
+scoring:
+  model:
+    path: "kddcup1998/runs/model_140fdc841477/model.joblib"
+  baseline:
+    use_existing_predictions: true
+
+performance:
+  n_jobs: 1
+  shuffle_batch: 10
+
+metric_drop:
+  enabled: true
+  metrics:
+    regression: ["rmse", "mae", "r2"]
+  ranking_metric:
+    name: "rmse"
+    direction: "lower_is_better"
+
+record_outliers:
+  enabled: true
+  variability_stat: "iqr"
+  aggregation_across_features: "mean"
+  output_top_outliers:
+    enabled: true
+    top_n: 200
+    include_meta: true
+    include_top_features:
+      enabled: true
+      top_k: 5
+
+bucketing:
+  enabled: true
+  always_include_all: true
+  mode: "aggregate"                    # fast: no rescoring per bucket
+  bucket_stats:
+    enabled: true
+  specs:
+    - name: "pred_decile"
+      by: "prediction"
+      columns: "ALL_MODELS"
+      scheme: { type: "quantile", q: 10 }
+    - name: "pred_top5pct"
+      by: "prediction"
+      columns: "ALL_MODELS"
+      scheme: { type: "top_pct", pct: 0.05 }
+    - name: "by_responder"
+      by: "meta"
+      columns: ["TARGET_B"]
+      scheme: { type: "categories", min_count: 100 }
+
+stability:
+  enabled: true
+  resampling:
+    method: "bootstrap"
+    B: 100
+    bootstrap:
+      sample_frac: 1.0
+  rankings_to_check: ["importance", "metric_drop"]
+  metrics:
+    top_k_jaccard: { enabled: true, k: 10 }
+    bottom_k_jaccard: { enabled: true, k: 10 }
+    spearman: { enabled: true }
+    kendall_tau: { enabled: true }
+    pairwise_order_consistency: { enabled: true, Z: 0.90 }
+  consensus_ranking:
+    method: "median_rank"
+    tie_breaker: "mean_value"
+
+reporting:
+  write_parquet: true
+  write_csv: true
+  write_markdown_report: true
+  report_sections:
+    - "baseline_metrics"
+    - "baseline_target_distribution"
+    - "importance"
+    - "metric_drop"
+    - "record_outliers"
+    - "bucketing"
+    - "stability"
+  logging:
+    level: "INFO"

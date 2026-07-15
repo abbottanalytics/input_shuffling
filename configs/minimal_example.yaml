@@ -1,0 +1,50 @@
+# ============================================================================
+# MINIMAL input_shuffling_v2 config — the smallest thing that runs.
+#
+# Input shuffling has exactly TWO hard requirements:
+#   1. A dataset containing the feature columns (baseline scores can either be
+#      a column in the data, or recomputed from the model).
+#   2. A model artifact that can score a DataFrame — because the algorithm
+#      shuffles a column and RE-SCORES the model. Stored scores alone are not
+#      enough; there must be something to rescore with.
+#
+# No custom scoring plugin, no model_info.json, and no other infrastructure
+# are needed: when scoring.plugin is omitted, the built-in generic plugin
+# (input_shuffling_v2.plugins.sklearn_joblib) loads any joblib/pickle
+# sklearn-like model (predict_proba / decision_function / predict) and reads
+# feature names from model_info.json if present, else from the model's own
+# feature_names_in_.
+#
+# Everything not listed here gets defaults: n_shuffles=50,
+# ranking_stat=mean_record_iqr, metric_drop/bucketing/stability/
+# record_outliers disabled, CSV outputs + markdown report on.
+# ============================================================================
+
+run:
+  name: "minimal_example"
+
+data:
+  path: "path/to/scored_data.parquet"    # parquet or csv
+
+schema:
+  target_column: "y"          # optional — needed only for baseline metrics / metric_drop
+  target_type: "binary"       # binary|regression
+  feature_columns: []         # [] => resolved from model_info.json or the model itself,
+                              # else inferred from the data file (all columns without
+                              # another role). Otherwise list the inputs explicitly.
+  prediction_columns: []      # EXACTLY ONE score column per model per config.
+                              # Must be REAL-VALUED with variance (a probability for
+                              # classification — never the {0,1} predicted label).
+                              # [] => derived as "<target>_prob" / "<target>_pred";
+                              # a legacy "score" column is auto-aliased.
+  ignore_columns: []          # columns to exclude when features are inferred from
+                              # the data file — e.g. other models' score columns in
+                              # a multi-model export. All non-role columns are
+                              # ignored either way; this list only steers inference.
+
+scoring:
+  model:
+    path: "path/to/model.joblib"
+  # baseline:
+  #   use_existing_predictions: false   # set false to recompute baseline scores
+  #                                     # from the model instead of using a column
