@@ -118,6 +118,20 @@ KNIME lessons learned (validated on a real 6-model TARGET_B export):
   forest at ~20s/pass takes hours single-process — use `performance.n_jobs`
   and/or `sampling` for big ensembles.
 
+## Preprocessing and kNN models
+
+- **`scoring.preprocessing`** — a per-model list of PMML transformation files
+  (e.g. a KNIME Normalizer export) applied to the features after shuffling
+  and before scoring. Use when a model was trained on transformed inputs but
+  the data file holds raw values. Shuffling always operates on the raw
+  columns, preserving each variable's true marginal distribution.
+- **kNN models** (`input_shuffling_v2.plugins.knn_lookup`) — kNN has no
+  exportable equation; the model artifact is a JSON spec pointing at the
+  exported training set plus distance settings (`n_neighbors`, `weights`,
+  `metric`, optional `preprocessing_pmml` applied to both the reference set
+  and queries, optional `reference_sample_n`). See
+  `configs/knime/target_b_knn_spec.json`.
+
 ## Column contract
 
 - **One score column per model per config.** The score must be real-valued
