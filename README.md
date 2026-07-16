@@ -109,8 +109,9 @@ KNIME lessons learned (validated on a real 6-model TARGET_B export):
   PMML transformation nodes) so the written PMML carries the NormContinuous
   fields. Models trained directly on the exported columns (logistic, tree,
   NB, GBM, RF) reproduce KNIME's stored probabilities to ~1e-9 or better.
-- **kNN cannot be exported to PMML** (instance-based) — a kNN score column
-  in the flat file cannot be shuffled; there is nothing to rescore with.
+- **kNN cannot be exported to PMML** (instance-based) — use the
+  `knn_lookup` plugin instead: export the training partition and describe
+  the node's settings in a JSON spec (see "Preprocessing and kNN models").
 - The tool's scorer-consistency check catches both problems at startup by
   comparing plugin scores against the stored column.
 - **Runtime scales with model scoring cost**: logistic/tree/NB score 47k
