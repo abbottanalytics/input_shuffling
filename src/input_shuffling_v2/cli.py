@@ -141,6 +141,9 @@ def main(argv: list[str] | None = None) -> Path:
         logger.info("Recomputing baseline predictions via scoring plugin...")
         baseline = scorer(df[feature_cols])
         validate_prediction_scores(baseline, cfg, source="recomputed baseline scores")
+        # Make the recomputed scores available under the prediction column name
+        # for baseline metrics, prediction bucketing, and outputs.
+        df[pred_col] = baseline
 
     # ---- Baseline outputs ------------------------------------------------
     logger.info("Computing baseline target distribution and metrics...")

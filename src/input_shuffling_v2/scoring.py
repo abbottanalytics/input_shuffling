@@ -34,7 +34,10 @@ def load_scoring_plugin(cfg: dict) -> dict:
 
 
 def make_scorer(cfg: dict, predict_fn) -> Callable[[pd.DataFrame], np.ndarray]:
-    """Bind config (model path, feature order, clipping, row batching) into one callable."""
+    """Bind config (model path, feature order, preprocessing, clipping, row
+    batching) into one callable."""
+    from .transforms import load_preprocessing
+
     schema = cfg["schema"]
     feature_cols = schema["feature_columns"]
     model_path = cfg["scoring"]["model"]["path"]
@@ -42,8 +45,13 @@ def make_scorer(cfg: dict, predict_fn) -> Callable[[pd.DataFrame], np.ndarray]:
     pred_clip_cfg = schema.get("prediction_clip") or {}
     clip_eps = pred_clip_cfg.get("eps") if pred_clip_cfg.get("enabled", False) else None
     row_batch = cfg["scoring"].get("batch_size")
+    transforms = load_preprocessing(cfg)
 
     def score(X: pd.DataFrame) -> np.ndarray:
+        # Preprocessing (e.g. a KNIME Normalizer PMML) runs after shuffling,
+        # before scoring: shuffle in raw units, score in model units.
+        for t in transforms:
+            X = t.transform(X)
         if row_batch:
             parts = []
             for start in range(0, len(X), int(row_batch)):
