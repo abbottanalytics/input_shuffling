@@ -45,12 +45,11 @@ scoring:
     path: "kddcup1998/data/pmml_models/target_b_mlp.pmml"
   baseline:
     use_existing_predictions: true
-  # The MLP was trained on [0,1]-normalized inputs. EITHER re-export the model
-  # from KNIME with the Normalizer PMML bundled into the learner's PMML
-  # (preferred — then delete this block), OR export the Normalizer as its own
-  # PMML file and point to it here:
-  # preprocessing:
-  #   - path: "kddcup1998/data/pmml_models/target_b_normalizer.pmml"
+  # The MLP was trained on [0,1]-normalized inputs; this Normalizer PMML is
+  # applied after shuffling, before scoring (verified: reproduces KNIME's
+  # stored probabilities to ~1e-10).
+  preprocessing:
+    - path: "kddcup1998/data/pmml_models/target_b_mlp_normalize.pmml"
 
 performance:
   n_jobs: 1                             # ensembles are slow to score; parallelize
