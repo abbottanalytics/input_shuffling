@@ -1,10 +1,10 @@
 {
   "type": "knn",
-  "train_data": "kddcup1998/data/raw/target_b_knime_train.csv",
+  "train_data": "kddcup1998/data/pmml_models/target_b_knn_training_lookup.csv",
   "target_column": "TARGET_B",
   "positive_label": 1,
   "feature_columns": null,
-  "n_neighbors": 11,
+  "n_neighbors": 99,
   "weights": "uniform",
   "metric": "euclidean",
   "preprocessing_pmml": [
@@ -12,5 +12,6 @@
     "kddcup1998/data/pmml_models/target_b_knn_dummy_normalize.pmml"
   ],
   "reference_sample_n": null,
-  "seed": 12345
+  "seed": 12345,
+  "train_data_normalized": true
 }

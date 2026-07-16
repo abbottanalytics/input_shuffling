@@ -47,7 +47,11 @@ scoring:
   model:
     path: "input_shuffling_v2/configs/knime/target_b_knn_spec.json"
   baseline:
-    use_existing_predictions: true
+    # Recompute the baseline with the SAME kNN implementation used for
+    # shuffled scoring: sklearn and KNIME break distance ties differently
+    # (corr 0.907 vs the stored column; 88% of rows within one neighbor
+    # flip), and deltas must not absorb that implementation noise.
+    use_existing_predictions: false
 
 performance:
   n_jobs: 4   # 47k-vs-47k distance lookups are the bottleneck                             # ensembles are slow to score; parallelize

@@ -19,6 +19,9 @@ the distance settings. This plugin's model file is a small JSON spec:
                                       // path or an ordered list of PMMLs,
                                       // applied in order — identically to the
                                       // reference set (at load) and to queries.
+    "train_data_normalized": false,   // true if train_data was exported AFTER
+                                      // normalization: the chain then applies
+                                      // to queries only.
     "reference_sample_n": null,       // optional: subsample the reference set
     "seed": 12345
   }
@@ -89,8 +92,12 @@ def _load(model_path: str) -> dict:
         from ..transforms import PMMLNormalizer
         paths = [pre] if isinstance(pre, str) else list(pre)
         transforms = [PMMLNormalizer(_resolve(p, spec_dir)) for p in paths]
-        for t in transforms:
-            train = t.transform(train)
+        if spec.get("train_data_normalized", False):
+            logger.info("knn_lookup: train_data is already normalized; "
+                        "preprocessing chain applies to queries only")
+        else:
+            for t in transforms:
+                train = t.transform(train)
 
     sample_n = spec.get("reference_sample_n")
     if sample_n and int(sample_n) < len(train):
