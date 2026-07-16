@@ -1,0 +1,129 @@
+# input_shuffling_v2 — KNIME TARGET_B models, nb (PMML)
+# Data: KNIME export with features + stored probabilities for 7 models.
+# Not runnable from this export: mlp (PMML lacks the Normalizer step — re-export
+# with the normalization bundled), knn (KNIME cannot export kNN to PMML).
+version: "2.0"
+
+run:
+  name: "input_shuffling_v2_knime_target_b_nb"
+  output_dir: "runs"
+  seed: 12345
+
+data:
+  path: "kddcup1998/data/raw/target_b_models_knime_features_w_score.csv"
+  format: "csv"
+
+schema:
+  id_column: "row ID"
+  target_column: "TARGET_B"
+  target_type: "binary"
+  positive_label: 1
+  feature_columns: []                          # from the PMML MiningSchema
+  meta_columns: []
+  prediction_columns: ["P (TARGET_B=1) NB"]
+
+sampling:
+  use: "all"
+
+shuffling:
+  n_shuffles: 10
+  shuffle_scope: "global"
+  shuffle_method: "permute"
+  seed_strategy: "deterministic"
+
+importance:
+  enabled: true
+  eps: 0.01
+  ranking_stat: "mean_record_iqr"
+
+scoring:
+  plugin:
+    module: "input_shuffling_v2.plugins.pmml"
+    function: "predict"
+    info_function: "model_info"
+  model:
+    path: "kddcup1998/data/pmml_models/target_b_nb.pmml"
+  baseline:
+    use_existing_predictions: true
+
+performance:
+  n_jobs: 1                             # ensembles are slow to score; parallelize
+  shuffle_batch: 10
+
+metric_drop:
+  enabled: true
+  metrics:
+    binary: ["roc_auc", "logloss", "f1", "accuracy", "lift_at_decile"]
+  thresholding:
+    enabled: true
+    method: "fixed_or_prior"
+  ranking_metric:
+    name: "roc_auc"
+    direction: "higher_is_better"
+  lift_settings:
+    decile: 1
+
+record_outliers:
+  enabled: true
+  variability_stat: "iqr"
+  aggregation_across_features: "mean"
+  output_top_outliers:
+    enabled: true
+    top_n: 200
+    include_meta: true
+    include_top_features:
+      enabled: true
+      top_k: 5
+
+bucketing:
+  enabled: true
+  always_include_all: true
+  mode: "aggregate"                            # no rescoring per bucket
+  bucket_stats:
+    enabled: true
+  specs:
+    - name: "pred_decile"
+      by: "prediction"
+      columns: "ALL_MODELS"
+      scheme: { type: "quantile", q: 10 }
+    - name: "pred_top5pct"
+      by: "prediction"
+      columns: "ALL_MODELS"
+      scheme: { type: "top_pct", pct: 0.05 }
+    - name: "pred_bottom5pct"
+      by: "prediction"
+      columns: "ALL_MODELS"
+      scheme: { type: "bottom_pct", pct: 0.05 }
+
+stability:
+  enabled: true
+  resampling:
+    method: "bootstrap"
+    B: 100
+    bootstrap:
+      sample_frac: 1.0
+  rankings_to_check: ["importance", "metric_drop"]
+  metrics:
+    top_k_jaccard: { enabled: true, k: 10 }
+    bottom_k_jaccard: { enabled: true, k: 10 }
+    spearman: { enabled: true }
+    kendall_tau: { enabled: true }
+    pairwise_order_consistency: { enabled: true, Z: 0.90 }
+  consensus_ranking:
+    method: "median_rank"
+    tie_breaker: "mean_value"
+
+reporting:
+  write_parquet: true
+  write_csv: true
+  write_markdown_report: true
+  report_sections:
+    - "baseline_metrics"
+    - "baseline_target_distribution"
+    - "importance"
+    - "metric_drop"
+    - "record_outliers"
+    - "bucketing"
+    - "stability"
+  logging:
+    level: "INFO"

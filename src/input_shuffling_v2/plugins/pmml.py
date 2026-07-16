@@ -64,18 +64,34 @@ def _pick_output_column(model, result: pd.DataFrame) -> pd.Series:
                 return result[col]
         return result.iloc[:, 0]
 
-    # classification: probability of the positive class
+    # classification: probability of the positive class.
+    # PMML tools name this differently: "probability(1)" (PMML4S default),
+    # "P (1)" (KNIME ensemble exports), etc. Try the declared OutputFields
+    # first, then common name patterns.
     positive_label = os.environ.get("INPUT_SHUFFLING_POSITIVE_LABEL", "1")
-    for cand in (f"probability({positive_label})", f"probability_{positive_label}"):
+
+    for f in model.outputFields:
+        if (getattr(f, "feature", None) == "probability"
+                and str(getattr(f, "value", "")) == positive_label
+                and f.name in result.columns):
+            return result[f.name]
+
+    candidates = (
+        f"probability({positive_label})", f"probability_{positive_label}",
+        f"P ({positive_label})", f"P({positive_label})",
+    )
+    for cand in candidates:
         if cand in result.columns:
             return result[cand]
-    prob_cols = [c for c in result.columns if c.lower().startswith("probability")]
+
+    prob_cols = [c for c in result.columns
+                 if c.lower().startswith(("probability", "p (", "p("))]
     if len(prob_cols) == 1:
         return result[prob_cols[0]]
     raise ValueError(
-        f"Could not identify probability({positive_label}) in PMML output columns "
-        f"{list(result.columns)}. Set INPUT_SHUFFLING_POSITIVE_LABEL to the "
-        "positive class label used in the PMML.")
+        f"Could not identify the probability of class '{positive_label}' in PMML "
+        f"output columns {list(result.columns)}. Set INPUT_SHUFFLING_POSITIVE_LABEL "
+        "to the positive class label used in the PMML.")
 
 
 def predict(

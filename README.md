@@ -98,8 +98,25 @@ Multiple models in one flat file = one config per model, each naming its own
 P(positive class) (positive label defaults to "1"; override with the
 `INPUT_SHUFFLING_POSITIVE_LABEL` env var); regression PMML returns the
 predicted value. Requires `pip install pypmml` and a Java runtime (present
-wherever KNIME runs). Throughput is ~120k rows/s — on par with native
-sklearn scoring.
+wherever KNIME runs).
+
+KNIME lessons learned (validated on a real 6-model TARGET_B export):
+
+- **Bundle preprocessing into the PMML.** If the workflow normalizes inputs
+  (e.g. before an MLP), the learner-only PMML omits that step and scores
+  garbage on raw features (a saturated network returns a constant). Feed the
+  Normalizer's PMML into the learner's optional PMML in-port (or combine via
+  PMML transformation nodes) so the written PMML carries the NormContinuous
+  fields. Models trained directly on the exported columns (logistic, tree,
+  NB, GBM, RF) reproduce KNIME's stored probabilities to ~1e-9 or better.
+- **kNN cannot be exported to PMML** (instance-based) — a kNN score column
+  in the flat file cannot be shuffled; there is nothing to rescore with.
+- The tool's scorer-consistency check catches both problems at startup by
+  comparing plugin scores against the stored column.
+- **Runtime scales with model scoring cost**: logistic/tree/NB score 47k
+  rows in ~1s (a 31-feature x 10-shuffle run takes minutes); a large random
+  forest at ~20s/pass takes hours single-process — use `performance.n_jobs`
+  and/or `sampling` for big ensembles.
 
 ## Column contract
 
