@@ -71,6 +71,19 @@ def validate_prediction_scores(scores, cfg: dict, source: str) -> None:
             f"{source}: only {len(uniq)} distinct score values — quantile buckets "
             "will be coarse (typical for heavily pruned trees).")
 
+    # Degenerate concentration: most records tied at one score value destroys
+    # rank ordering (AUC ~ 0.5) even when accuracy looks high, e.g. a deep
+    # hard-voting random forest scoring a rare class.
+    values, counts = np.unique(scores, return_counts=True)
+    modal_frac = counts.max() / len(scores)
+    if modal_frac >= 0.5:
+        logger.warning(
+            f"{source}: {modal_frac:.0%} of records share one score value "
+            f"({values[counts.argmax()]:.6g}) — ranking metrics (AUC, lift, "
+            "deciles) are dominated by ties. For classifiers this often means "
+            "degenerate probabilities (e.g. hard-vote ensembles of deep trees); "
+            "check the model's probability estimation.")
+
 
 # Columns never treated as features when inferring from the data file
 _STRUCTURAL_COLUMNS = {"score", "model_id", "is_test", "rownum"}
