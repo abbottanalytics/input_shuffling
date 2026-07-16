@@ -7,7 +7,10 @@
   "n_neighbors": 21,
   "weights": "distance",
   "metric": "euclidean",
-  "preprocessing_pmml": null,
+  "preprocessing_pmml": [
+    "kddcup1998/data/pmml_models/target_b_norm_0_1.pmml",
+    "kddcup1998/data/pmml_models/target_b_dummies_03_07.pmml"
+  ],
   "reference_sample_n": null,
   "seed": 12345
 }

@@ -204,3 +204,22 @@ def test_knn_end_to_end_shuffling(knn_setup):
     assert imp["feature"].iloc[0] == "strong"
     vals = imp.set_index("feature")["ranking_value"]
     assert vals["noise"] < vals["strong"]
+
+
+def test_normalizer_chain_two_steps(tmp_path):
+    """Dean's kNN chain: all vars to [0,1], then dummies to {0.3, 0.7}."""
+    step1 = tmp_path / "all_to_0_1.pmml"
+    write_normalizer_pmml(step1, {"cont": (0.0, 200.0), "dummy": (0.0, 1.0)})
+    step2 = tmp_path / "dummies_to_03_07.pmml"
+    write_normalizer_pmml(step2, {"dummy": (0.0, 1.0)})
+    # rewrite step2 norms to 0.3/0.7
+    step2.write_text(step2.read_text()
+                     .replace('norm="0.0"', 'norm="0.3"')
+                     .replace('norm="1.0"', 'norm="0.7"'))
+
+    df = pd.DataFrame({"cont": [0.0, 100.0, 200.0], "dummy": [0.0, 1.0, 1.0]})
+    out = df
+    for t in (PMMLNormalizer(step1), PMMLNormalizer(step2)):
+        out = t.transform(out)
+    np.testing.assert_allclose(out["cont"], [0.0, 0.5, 1.0])
+    np.testing.assert_allclose(out["dummy"], [0.3, 0.7, 0.7])

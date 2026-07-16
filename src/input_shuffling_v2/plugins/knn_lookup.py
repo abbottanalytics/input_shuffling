@@ -12,11 +12,13 @@ the distance settings. This plugin's model file is a small JSON spec:
     "n_neighbors": 21,                // KNIME's k
     "weights": "distance",            // "distance" if KNIME's 'weight by distance'
     "metric": "euclidean",
-    "preprocessing_pmml": "path/to/normalizer.pmml",  // optional but strongly
-                                      // recommended: kNN is distance-based, so
-                                      // features should be on a common scale.
-                                      // Applied identically to the reference
-                                      // set (at load) and to queries.
+    "preprocessing_pmml": ["all_to_0_1.pmml", "dummies_to_03_07.pmml"],
+                                      // optional but strongly recommended:
+                                      // kNN is distance-based, so features
+                                      // should be on a common scale. A single
+                                      // path or an ordered list of PMMLs,
+                                      // applied in order — identically to the
+                                      // reference set (at load) and to queries.
     "reference_sample_n": null,       // optional: subsample the reference set
     "seed": 12345
   }
@@ -81,11 +83,14 @@ def _load(model_path: str) -> dict:
         logger.info(f"knn_lookup: using {len(feature_cols)} numeric feature columns "
                     "from the training data (spec.feature_columns not set)")
 
-    transform = None
-    if spec.get("preprocessing_pmml"):
+    transforms = []
+    pre = spec.get("preprocessing_pmml")
+    if pre:
         from ..transforms import PMMLNormalizer
-        transform = PMMLNormalizer(_resolve(spec["preprocessing_pmml"], spec_dir))
-        train = transform.transform(train)
+        paths = [pre] if isinstance(pre, str) else list(pre)
+        transforms = [PMMLNormalizer(_resolve(p, spec_dir)) for p in paths]
+        for t in transforms:
+            train = t.transform(train)
 
     sample_n = spec.get("reference_sample_n")
     if sample_n and int(sample_n) < len(train):
@@ -106,7 +111,7 @@ def _load(model_path: str) -> dict:
     ).fit(X, y)
     pos_idx = int(np.where(knn.classes_ == 1)[0][0])
 
-    entry = {"knn": knn, "feature_columns": feature_cols, "transform": transform,
+    entry = {"knn": knn, "feature_columns": feature_cols, "transforms": transforms,
              "pos_idx": pos_idx, "n_reference": len(train), "spec": spec}
     _CACHE[resolved] = entry
     logger.info(f"knn_lookup: fitted k={knn.n_neighbors} ({spec.get('weights','uniform')} "
@@ -140,8 +145,8 @@ def predict(
         raise ValueError(f"Missing required feature columns for scoring: {missing}")
 
     X = df_features
-    if entry["transform"] is not None:
-        X = entry["transform"].transform(X)
+    for t in entry["transforms"]:
+        X = t.transform(X)
     X = X.loc[:, cols].to_numpy(dtype=float)
 
     p = entry["knn"].predict_proba(X)[:, entry["pos_idx"]].astype(float)
