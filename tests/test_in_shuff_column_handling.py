@@ -20,7 +20,7 @@ SRC = Path(__file__).resolve().parents[1] / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from input_shuffling_v2.io import validate_prediction_scores, validate_schema_consistency  # noqa: E402
+from input_shuffling_v2.in_shuff_io import validate_prediction_scores, validate_schema_consistency  # noqa: E402
 
 
 def _base_cfg(**schema_extra):
@@ -122,7 +122,7 @@ def _run_cfg(tmp, data_path, model_path, **schema_extra):
 
 
 def test_inference_with_ignore_columns(flat_file_setup):
-    from input_shuffling_v2.cli import main
+    from input_shuffling_v2.in_shuff_cli import main
 
     tmp, data_path, model_path = flat_file_setup
     cfg = _run_cfg(tmp, data_path, model_path,
@@ -139,7 +139,7 @@ def test_inference_with_ignore_columns(flat_file_setup):
 
 
 def test_label_prediction_column_fails_fast(flat_file_setup):
-    from input_shuffling_v2.cli import main
+    from input_shuffling_v2.in_shuff_cli import main
 
     tmp, data_path, model_path = flat_file_setup
     flat = pd.read_parquet(data_path)

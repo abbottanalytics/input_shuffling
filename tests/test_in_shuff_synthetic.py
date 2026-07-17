@@ -21,7 +21,7 @@ for p in (str(SRC), str(TESTS)):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-from input_shuffling_v2.engine import _reduce_delta_matrix  # noqa: E402
+from input_shuffling_v2.in_shuff_engine import _reduce_delta_matrix  # noqa: E402
 
 
 COEFS = {"var1": 0.5, "var2": 0.2, "var3": 0.3}
@@ -61,7 +61,7 @@ def run_dir(tmp_path_factory):
         "shuffling": {"n_shuffles": 20},
         "importance": {"enabled": True, "eps": 0.01, "ranking_stat": "mean_record_iqr"},
         "scoring": {
-            "plugin": {"module": "synthetic_plugin", "function": "predict",
+            "plugin": {"module": "in_shuff_synthetic_plugin", "function": "predict",
                        "info_function": "model_info"},
             "model": {"path": str(model_path)},
             "baseline": {"use_existing_predictions": True},
@@ -90,7 +90,7 @@ def run_dir(tmp_path_factory):
     cfg_path = tmp / "config.yaml"
     cfg_path.write_text(yaml.safe_dump(cfg))
 
-    from input_shuffling_v2.cli import main
+    from input_shuffling_v2.in_shuff_cli import main
     return main(["--config", str(cfg_path)])
 
 
@@ -163,7 +163,7 @@ def test_reduce_delta_matrix_math():
 
 def test_determinism_across_batch_sizes(run_dir, tmp_path):
     """Same seeds must give identical deltas regardless of shuffle_batch."""
-    from input_shuffling_v2.engine import shuffle_one_feature
+    from input_shuffling_v2.in_shuff_engine import shuffle_one_feature
     rng = np.random.default_rng(0)
     X = pd.DataFrame({"var1": rng.normal(size=200), "var2": rng.normal(size=200)})
     baseline = 0.5 * X["var1"].to_numpy() + 0.2 * X["var2"].to_numpy()

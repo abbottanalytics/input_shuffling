@@ -31,7 +31,7 @@ DEFAULT_RANKING_STAT = "mean_record_iqr"
 
 # Built-in generic sklearn/joblib scorer, used when scoring.plugin is omitted
 DEFAULT_PLUGIN = {
-    "module": "input_shuffling_v2.plugins.sklearn_joblib",
+    "module": "input_shuffling_v2.plugins.in_shuff_sklearn_joblib",
     "function": "predict",
     "info_function": "model_info",
 }

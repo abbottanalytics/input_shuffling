@@ -8,7 +8,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from .engine import FeatureResult
+from .in_shuff_engine import FeatureResult
 
 logger = logging.getLogger("input_shuffling_v2")
 

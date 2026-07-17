@@ -7,13 +7,13 @@ Spearman rank-correlation matrix between models.
 Usage (from Analytics Projects/):
 
   # explicit run dirs
-  PYTHONPATH=input_shuffling_v2/src:. python3 -m input_shuffling_v2.compare_runs \
+  PYTHONPATH=input_shuffling_v2/src:. python3 -m input_shuffling_v2.in_shuff_compare_runs \
       input_shuffling_v2/runs/..._logistic__20260716_103703 \
       input_shuffling_v2/runs/..._knn__20260716_131544 \
       --output comparison.csv
 
   # or glob patterns; for each pattern the LATEST matching run is used
-  PYTHONPATH=input_shuffling_v2/src:. python3 -m input_shuffling_v2.compare_runs \
+  PYTHONPATH=input_shuffling_v2/src:. python3 -m input_shuffling_v2.in_shuff_compare_runs \
       --latest "input_shuffling_v2/runs/*knime_target_b_*" \
       --output knime_target_b_comparison.csv
 

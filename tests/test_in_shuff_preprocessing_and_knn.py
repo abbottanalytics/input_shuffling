@@ -17,7 +17,7 @@ SRC = Path(__file__).resolve().parents[1] / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from input_shuffling_v2.transforms import PMMLNormalizer  # noqa: E402
+from input_shuffling_v2.in_shuff_transforms import PMMLNormalizer  # noqa: E402
 
 
 def write_normalizer_pmml(path: Path, ranges: dict[str, tuple[float, float]]) -> None:
@@ -62,7 +62,7 @@ def test_normalizer_minmax_and_extrapolation(tmp_path):
 
 def test_preprocessing_hook_end_to_end(tmp_path):
     from sklearn.linear_model import LogisticRegression
-    from input_shuffling_v2.cli import main
+    from input_shuffling_v2.in_shuff_cli import main
 
     rng = np.random.default_rng(2)
     n = 1000
@@ -156,7 +156,7 @@ def knn_setup(tmp_path_factory):
 
 def test_knn_plugin_matches_sklearn(knn_setup):
     from sklearn.neighbors import KNeighborsClassifier
-    from input_shuffling_v2.plugins.knn_lookup import predict, model_info
+    from input_shuffling_v2.plugins.in_shuff_knn_lookup import predict, model_info
 
     tmp, spec_path, train, X_test, _ = knn_setup
     info = model_info(model_path=str(spec_path))
@@ -171,7 +171,7 @@ def test_knn_plugin_matches_sklearn(knn_setup):
 
 
 def test_knn_end_to_end_shuffling(knn_setup):
-    from input_shuffling_v2.cli import main
+    from input_shuffling_v2.in_shuff_cli import main
 
     tmp, spec_path, train, X_test, y_test = knn_setup
     flat = X_test.copy()
@@ -188,7 +188,7 @@ def test_knn_end_to_end_shuffling(knn_setup):
                    "prediction_columns": []},
         "shuffling": {"n_shuffles": 6},
         "scoring": {
-            "plugin": {"module": "input_shuffling_v2.plugins.knn_lookup",
+            "plugin": {"module": "input_shuffling_v2.plugins.in_shuff_knn_lookup",
                        "function": "predict", "info_function": "model_info"},
             "model": {"path": str(spec_path)},
             "baseline": {"use_existing_predictions": False},  # no stored scores

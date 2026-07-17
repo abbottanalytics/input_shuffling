@@ -36,7 +36,7 @@ def load_scoring_plugin(cfg: dict) -> dict:
 def make_scorer(cfg: dict, predict_fn) -> Callable[[pd.DataFrame], np.ndarray]:
     """Bind config (model path, feature order, preprocessing, clipping, row
     batching) into one callable."""
-    from .transforms import load_preprocessing
+    from .in_shuff_transforms import load_preprocessing
 
     schema = cfg["schema"]
     feature_cols = schema["feature_columns"]

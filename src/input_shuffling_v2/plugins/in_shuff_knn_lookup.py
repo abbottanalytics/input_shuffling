@@ -89,7 +89,7 @@ def _load(model_path: str) -> dict:
     transforms = []
     pre = spec.get("preprocessing_pmml")
     if pre:
-        from ..transforms import PMMLNormalizer
+        from ..in_shuff_transforms import PMMLNormalizer
         paths = [pre] if isinstance(pre, str) else list(pre)
         transforms = [PMMLNormalizer(_resolve(p, spec_dir)) for p in paths]
         if spec.get("train_data_normalized", False):

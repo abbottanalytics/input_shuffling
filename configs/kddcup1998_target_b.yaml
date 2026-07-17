@@ -1,3 +1,4 @@
+# Input Shuffling v2 configuration file
 # input_shuffling_v2 — kddcup1998 TARGET_B, full config (n_shuffles=50)
 # All v2 analysis layers enabled. Compatible with the v0.6 config spec.
 version: "2.0"

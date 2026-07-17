@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import kendalltau
 
-from .engine import FeatureResult
+from .in_shuff_engine import FeatureResult
 
 logger = logging.getLogger("input_shuffling_v2")
 
@@ -77,7 +77,7 @@ def _bootstrap_metric_drop_ranks(
     results: list[FeatureResult], baseline_metric_values: dict, cfg: dict,
     rng: np.random.Generator,
 ) -> tuple[np.ndarray, np.ndarray, list[str]] | None:
-    from .metrics import METRIC_HIGHER_IS_BETTER
+    from .in_shuff_metrics import METRIC_HIGHER_IS_BETTER
 
     st = cfg["stability"]
     B = int((st.get("resampling") or {}).get("B", 100))

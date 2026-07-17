@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from .engine import FeatureResult
+from .in_shuff_engine import FeatureResult
 
 SUMMARY_COLUMNS = [
     "model", "feature", "rank", "ranking_stat", "ranking_value",

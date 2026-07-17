@@ -1,3 +1,4 @@
+# Input Shuffling v2 configuration file
 # ============================================================================
 # MINIMAL input_shuffling_v2 config — the smallest thing that runs.
 #
@@ -10,7 +11,7 @@
 #
 # No custom scoring plugin, no model_info.json, and no other infrastructure
 # are needed: when scoring.plugin is omitted, the built-in generic plugin
-# (input_shuffling_v2.plugins.sklearn_joblib) loads any joblib/pickle
+# (input_shuffling_v2.plugins.in_shuff_sklearn_joblib) loads any joblib/pickle
 # sklearn-like model (predict_proba / decision_function / predict) and reads
 # feature names from model_info.json if present, else from the model's own
 # feature_names_in_.

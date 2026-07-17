@@ -1,3 +1,4 @@
+# Input Shuffling v2 configuration file
 # input_shuffling_v2 — KNIME TARGET_B models, logistic (PMML)
 # Data: KNIME export with features + stored probabilities for 7 models.
 # kNN via the knn_lookup plugin: the exported training set is the model artifact.
@@ -41,7 +42,7 @@ importance:
 # preprocessing_pmml there to match the KNIME kNN node's settings.
 scoring:
   plugin:
-    module: "input_shuffling_v2.plugins.knn_lookup"
+    module: "input_shuffling_v2.plugins.in_shuff_knn_lookup"
     function: "predict"
     info_function: "model_info"
   model:

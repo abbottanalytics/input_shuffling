@@ -1,3 +1,4 @@
+# Input Shuffling v2 configuration file
 # input_shuffling_v2 — titanic survived, full config (n_shuffles=50)
 # Model: CART baseline (model_98a696d7e25a) built by modelkit.run_classification_models
 # on prep_4bd1fe370b93 — same spec as the original model_52dc2f700edf (AUC 0.834).

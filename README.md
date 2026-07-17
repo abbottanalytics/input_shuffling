@@ -67,7 +67,7 @@ Input shuffling has exactly two hard requirements:
    column and *rescores* the model, so stored scores alone are not enough.
 
 Nothing else. When `scoring.plugin` is omitted, the built-in generic plugin
-(`input_shuffling_v2.plugins.sklearn_joblib`) loads any joblib/pickle
+(`input_shuffling_v2.plugins.in_shuff_sklearn_joblib`) loads any joblib/pickle
 sklearn-like model (`predict_proba` / `decision_function` / `predict`) and
 resolves feature names from `model_info.json` if present, else from the
 model's `feature_names_in_`, else from an explicit `schema.feature_columns`
@@ -86,7 +86,7 @@ schema:
   prediction_columns: ["P_y1_lr"]      # this model's score column in the flat file
 scoring:
   plugin:
-    module: "input_shuffling_v2.plugins.pmml"
+    module: "input_shuffling_v2.plugins.in_shuff_pmml"
     function: "predict"
     info_function: "model_info"
   model:
@@ -126,7 +126,7 @@ KNIME lessons learned (validated on a real 6-model TARGET_B export):
   and before scoring. Use when a model was trained on transformed inputs but
   the data file holds raw values. Shuffling always operates on the raw
   columns, preserving each variable's true marginal distribution.
-- **kNN models** (`input_shuffling_v2.plugins.knn_lookup`) — kNN has no
+- **kNN models** (`input_shuffling_v2.plugins.in_shuff_knn_lookup`) — kNN has no
   exportable equation; the model artifact is a JSON spec pointing at the
   exported training set plus distance settings (`n_neighbors`, `weights`,
   `metric`, optional `preprocessing_pmml` applied to both the reference set

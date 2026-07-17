@@ -23,8 +23,8 @@ import logging
 import numpy as np
 import pandas as pd
 
-from .engine import FeatureResult, run_engine, seed_context_for
-from .importance import SUMMARY_COLUMNS, build_feature_summary
+from .in_shuff_engine import FeatureResult, run_engine, seed_context_for
+from .in_shuff_importance import SUMMARY_COLUMNS, build_feature_summary
 
 logger = logging.getLogger("input_shuffling_v2")
 

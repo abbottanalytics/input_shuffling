@@ -4,7 +4,7 @@ Usage in a config:
 
   scoring:
     plugin:
-      module: "input_shuffling_v2.plugins.pmml"
+      module: "input_shuffling_v2.plugins.in_shuff_pmml"
       function: "predict"
       info_function: "model_info"
     model:

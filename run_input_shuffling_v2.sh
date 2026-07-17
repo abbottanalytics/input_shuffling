@@ -17,4 +17,4 @@ CONFIG=${1:-input_shuffling_v2/configs/kddcup1998_target_b.yaml}
 
 cd "$PROJECTS_DIR" || exit 1
 PYTHONPATH=input_shuffling_v2/src:. \
-python3 -m input_shuffling_v2.cli --config "$CONFIG"
+python3 -m input_shuffling_v2.in_shuff_cli --config "$CONFIG"

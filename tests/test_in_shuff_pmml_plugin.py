@@ -84,7 +84,7 @@ def _config(tmp, data_path, pmml_path, pred_col, features, target_type, name, **
         "shuffling": {"n_shuffles": 8},
         "importance": {"enabled": True, "eps": 0.01, "ranking_stat": "mean_record_iqr"},
         "scoring": {
-            "plugin": {"module": "input_shuffling_v2.plugins.pmml",
+            "plugin": {"module": "input_shuffling_v2.plugins.in_shuff_pmml",
                        "function": "predict", "info_function": "model_info"},
             "model": {"path": str(pmml_path)},
             "baseline": {"use_existing_predictions": True},
@@ -96,7 +96,7 @@ def _config(tmp, data_path, pmml_path, pred_col, features, target_type, name, **
 
 def test_pmml_scores_match_sklearn(classification_setup):
     """pypmml must reproduce the stored (sklearn) probabilities."""
-    from input_shuffling_v2.plugins.pmml import predict, model_info
+    from input_shuffling_v2.plugins.in_shuff_pmml import predict, model_info
 
     tmp, data_path, paths, features = classification_setup
     flat = pd.read_parquet(data_path)
@@ -112,7 +112,7 @@ def test_pmml_scores_match_sklearn(classification_setup):
 @pytest.mark.parametrize("model_name", ["lr", "tree"])
 def test_classification_multi_model_flat_file(classification_setup, model_name):
     """One flat file, several models: one config per model/prediction column."""
-    from input_shuffling_v2.cli import main
+    from input_shuffling_v2.in_shuff_cli import main
 
     tmp, data_path, paths, features = classification_setup
     cfg = _config(tmp, data_path, paths[model_name], f"P_y1_{model_name}",
@@ -133,7 +133,7 @@ def test_regression_pmml_flat_file(tmp_path_factory):
     from sklearn.linear_model import LinearRegression
     from sklearn.pipeline import Pipeline
     from nyoka import skl_to_pmml
-    from input_shuffling_v2.cli import main
+    from input_shuffling_v2.in_shuff_cli import main
 
     tmp = tmp_path_factory.mktemp("pmml_reg")
     rng = np.random.default_rng(23)

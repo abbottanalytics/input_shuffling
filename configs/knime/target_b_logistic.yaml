@@ -1,3 +1,4 @@
+# Input Shuffling v2 configuration file
 # input_shuffling_v2 — KNIME TARGET_B models, logistic (PMML)
 # Data: KNIME export with features + stored probabilities for 7 models.
 # Not runnable from this export: mlp (PMML lacks the Normalizer step — re-export
@@ -38,7 +39,7 @@ importance:
 
 scoring:
   plugin:
-    module: "input_shuffling_v2.plugins.pmml"
+    module: "input_shuffling_v2.plugins.in_shuff_pmml"
     function: "predict"
     info_function: "model_info"
   model:

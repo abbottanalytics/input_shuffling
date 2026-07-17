@@ -144,8 +144,8 @@ def shuffle_one_feature(
 
 def _parallel_worker(args: dict) -> list[FeatureResult]:
     """Runs in a child process: rebuild scorer + metric fns, score a feature chunk."""
-    from .scoring import load_scoring_plugin, make_scorer
-    from .metrics import make_metric_fns
+    from .in_shuff_scoring import load_scoring_plugin, make_scorer
+    from .in_shuff_metrics import make_metric_fns
 
     cfg = args["cfg"]
     plugin = load_scoring_plugin(cfg)

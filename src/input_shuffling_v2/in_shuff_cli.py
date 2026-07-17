@@ -2,7 +2,7 @@
 
 Usage:
   PYTHONPATH=input_shuffling_v2/src:. \
-  python3 -m input_shuffling_v2.cli --config input_shuffling_v2/configs/<config>.yaml
+  python3 -m input_shuffling_v2.in_shuff_cli --config input_shuffling_v2/configs/<config>.yaml
 """
 from __future__ import annotations
 
@@ -15,20 +15,20 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .bucketing import compute_bucketed_importance
-from .config import dump_config_used, load_config
-from .engine import run_engine
-from .importance import build_feature_summary
-from .io import (ensure_required_columns, infer_feature_columns, load_scored_data,
+from .in_shuff_bucketing import compute_bucketed_importance
+from .in_shuff_config import dump_config_used, load_config
+from .in_shuff_engine import run_engine
+from .in_shuff_importance import build_feature_summary
+from .in_shuff_io import (ensure_required_columns, infer_feature_columns, load_scored_data,
                  validate_prediction_scores, validate_schema_consistency)
-from .metric_drop import build_metric_drop_table
-from .metrics import (compute_baseline_metrics, compute_baseline_target_distribution,
+from .in_shuff_metric_drop import build_metric_drop_table
+from .in_shuff_metrics import (compute_baseline_metrics, compute_baseline_target_distribution,
                       compute_threshold, make_metric_fns)
-from .record_outliers import compute_record_outliers
-from .report import write_markdown_report
-from .sampling import apply_sampling
-from .scoring import load_scoring_plugin, make_scorer
-from .stability import compute_stability
+from .in_shuff_record_outliers import compute_record_outliers
+from .in_shuff_report import write_markdown_report
+from .in_shuff_sampling import apply_sampling
+from .in_shuff_scoring import load_scoring_plugin, make_scorer
+from .in_shuff_stability import compute_stability
 
 
 def setup_logger(cfg: dict) -> logging.Logger:

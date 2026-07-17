@@ -57,7 +57,7 @@ def run_dir(tmp_path_factory):
     cfg_path = tmp / "config.yaml"
     cfg_path.write_text(yaml.safe_dump(cfg))
 
-    from input_shuffling_v2.cli import main
+    from input_shuffling_v2.in_shuff_cli import main
     return main(["--config", str(cfg_path)])
 
 
