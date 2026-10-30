@@ -18,10 +18,9 @@ SD as complementary diagnostic — see the book-chapter recommendation).
 
 ## Install
 
-<!-- TODO(Dean): confirm the repository URL once published -->
 ```bash
-git clone https://github.com/abbottanalytics/input_shuffling_v2.git
-cd input_shuffling_v2
+git clone https://github.com/abbottanalytics/input_shuffling.git
+cd input_shuffling
 pip install -e .            # add [pmml] for KNIME/PMML models, [parquet] for parquet I/O, [dev] for pytest
 ```
 
@@ -226,7 +225,7 @@ KNIME lessons learned (validated on a real 6-model TARGET_B export):
 ## Tests
 
 ```bash
-cd input_shuffling_v2 && python3 -m pytest tests/ -v
+python -m pytest -v        # from the repository root
 ```
 
 Synthetic linear-model validation (ranking must match |coef|·std), stats math,
