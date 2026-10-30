@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Config loading, validation, and defaulting for input_shuffling_v2.
 
 Accepts both the v0.5 and v0.6 YAML schemas used by the v1 tool. Missing

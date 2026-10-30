@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """End-to-end and unit validation on synthetic linear data.
 
 The classic sanity check from the input-shuffling presentations: three

@@ -231,3 +231,20 @@ cd input_shuffling_v2 && python3 -m pytest tests/ -v
 
 Synthetic linear-model validation (ranking must match |coef|·std), stats math,
 determinism across batch sizes, and end-to-end output checks.
+
+## License
+
+Copyright (C) 2026 Dean Abbott / Abbott Analytics.
+
+Input Shuffling is free software under the
+[GNU Affero General Public License v3.0 or later](LICENSE) (AGPL-3.0-or-later).
+You may use, modify, and share it. If you distribute it, or offer it to
+others as a hosted service, you must release your complete source under the
+same license and keep the attribution in [NOTICE](NOTICE).
+
+**Commercial licenses are available.** To use Input Shuffling in a
+proprietary product or service without releasing its source, contact
+dean@abbottanalytics.com.
+
+If you use Input Shuffling in published work, please cite it; see
+[CITATION.cff](CITATION.cff).

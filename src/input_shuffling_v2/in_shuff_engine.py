@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Core input-shuffling engine.
 
 For each feature: permute its values n_shuffles times (all other columns

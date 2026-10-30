@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Cross-model importance comparison across input-shuffling runs.
 
 Merges importance_feature_summary.csv from several run directories into a

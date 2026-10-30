@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # Run input shuffling v2. Usage:
 #   ./run_input_shuffling_v2.sh [config.yaml]
 #

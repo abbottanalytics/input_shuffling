@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """The minimal-infrastructure path: a bare joblib sklearn model + a data file,
 no custom plugin, no model_info.json, no feature_columns in the YAML.
 """

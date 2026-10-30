@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Baseline metrics, target distribution, thresholding, and the metric registry
 used by metric_drop (classic permutation importance).
 """

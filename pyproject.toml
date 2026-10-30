@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,7 +9,8 @@ description = "Model-agnostic variable importance via input shuffling (per-recor
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [{ name = "Dean Abbott", email = "dean@abbottanalytics.com" }]
-# TODO(Dean): add `license = ...` once the LICENSE file is chosen
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE", "NOTICE"]
 dependencies = [
     "numpy>=1.21",
     "pandas>=1.3",

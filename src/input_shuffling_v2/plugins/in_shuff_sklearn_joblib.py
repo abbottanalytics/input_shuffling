@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Generic scoring plugin for any joblib/pickle sklearn-like model.
 
 This is the default plugin when a config has no scoring.plugin section, so a

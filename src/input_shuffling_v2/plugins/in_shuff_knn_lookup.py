@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Scoring plugin for k-nearest-neighbor models (e.g. KNIME's kNN node).
 
 kNN has no exportable model equation — the "model" IS the training set plus

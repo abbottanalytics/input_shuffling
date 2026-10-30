@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """KNIME-style workflow test: PMML models + one flat file with inputs,
 target, and score columns for multiple models.
 

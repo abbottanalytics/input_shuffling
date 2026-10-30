@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Classic permutation importance: metric degradation under shuffling.
 
 For each feature and each shuffle, the model metric (AUC, logloss, ...) is

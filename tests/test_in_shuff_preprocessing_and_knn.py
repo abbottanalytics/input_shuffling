@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Tests for the scoring.preprocessing hook (normalizer PMML applied before
 scoring) and the knn_lookup plugin (training set as the model artifact).
 """

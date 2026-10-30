@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Row sampling for the analysis subset (independent of stability resampling)."""
 from __future__ import annotations
 

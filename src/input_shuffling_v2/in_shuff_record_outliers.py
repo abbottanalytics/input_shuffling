@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Record-level instability: which records' predictions are most destabilized
 by shuffling, and which features drive that instability.
 """

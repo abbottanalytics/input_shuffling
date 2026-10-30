@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Feature preprocessing from PMML transformation files.
 
 Supports the PMML NormContinuous element (piecewise-linear normalization),

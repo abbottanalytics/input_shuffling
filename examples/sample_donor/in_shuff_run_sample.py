@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Dean Abbott / Abbott Analytics
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Run input shuffling on the sample donor data and check against the stored answers.
 
 Trains three models on the TRAIN rows of sample_donor_data.csv, then runs input
