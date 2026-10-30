@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import kendalltau
 
-from .in_shuff_engine import FeatureResult
+from .in_shuff_engine import FeatureResult, seed_context_for
 
 logger = logging.getLogger("input_shuffling_v2")
 
@@ -183,7 +183,7 @@ def compute_stability(
     summary_rows, feature_rows = [], []
 
     for ranking_name in st.get("rankings_to_check", ["importance"]):
-        rng = np.random.default_rng([seed, 987654321, hash(ranking_name) % (2**31)])
+        rng = np.random.default_rng([seed, 987654321, seed_context_for(ranking_name)])
 
         if ranking_name == "importance":
             ranks, values, features = _bootstrap_importance_ranks(results, cfg, rng)

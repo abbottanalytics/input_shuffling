@@ -66,6 +66,10 @@ def apply_defaults(cfg: dict) -> dict:
         "shuffling": {"n_shuffles": 50, "shuffle_scope": "global",
                       "shuffle_method": "permute", "seed_strategy": "deterministic"},
         "importance": {"enabled": True, "eps": 0.01, "ranking_stat": DEFAULT_RANKING_STAT},
+        "scoring": {"baseline": {"use_existing_predictions": True,
+                                  "verify_scorer": True,
+                                  "scorer_mismatch": "error",
+                                  "scorer_tolerance": 1e-6}},
         "metric_drop": {
             "enabled": False,
             "metrics": {
@@ -159,6 +163,26 @@ def load_config(path: Path) -> dict:
             "v2 supports exactly one prediction column per config. "
             f"Found {len(schema['prediction_columns'])}.")
 
+    shuffling = cfg["shuffling"]
+    supported_shuffle_options = {
+        "shuffle_scope": ("global",),
+        "shuffle_method": ("permute",),
+        "seed_strategy": ("deterministic",),
+    }
+    for key, allowed in supported_shuffle_options.items():
+        value = shuffling.get(key)
+        if value not in allowed:
+            raise ValueError(
+                f"Unsupported shuffling.{key}={value!r}. "
+                f"v2 currently supports only {allowed}.")
+    if int(shuffling["n_shuffles"]) < 1:
+        raise ValueError("shuffling.n_shuffles must be >= 1")
+
+    if not cfg["importance"].get("enabled", True):
+        raise ValueError(
+            "importance.enabled=false is not supported by this CLI because the "
+            "shuffle engine and downstream outputs require importance results.")
+
     ranking_stat = cfg["importance"]["ranking_stat"]
     if ranking_stat not in ALLOWED_RANKING_STATS:
         raise ValueError(
@@ -168,6 +192,21 @@ def load_config(path: Path) -> dict:
     mode = cfg["bucketing"].get("mode", "within_bucket")
     if mode not in {"within_bucket", "aggregate"}:
         raise ValueError(f"bucketing.mode must be within_bucket|aggregate, got {mode}")
+
+    baseline_cfg = cfg["scoring"].get("baseline") or {}
+    mismatch_action = str(baseline_cfg.get("scorer_mismatch", "error")).lower()
+    if mismatch_action not in {"error", "warn"}:
+        raise ValueError("scoring.baseline.scorer_mismatch must be 'error' or 'warn'")
+    if float(baseline_cfg.get("scorer_tolerance", 1e-6)) < 0:
+        raise ValueError("scoring.baseline.scorer_tolerance must be >= 0")
+
+    target_type = str(schema.get("target_type", "binary")).lower()
+    if cfg["metric_drop"]["enabled"] and target_type == "regression":
+        ranking_metric = (cfg["metric_drop"].get("ranking_metric") or {}).get("name")
+        if ranking_metric == "roc_auc":
+            raise ValueError(
+                "metric_drop.ranking_metric.name='roc_auc' is not valid for "
+                "regression. Use rmse, mae, or r2.")
 
     if cfg["metric_drop"]["enabled"] and not schema.get("target_column"):
         raise ValueError("metric_drop.enabled=true requires schema.target_column")

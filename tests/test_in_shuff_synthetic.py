@@ -176,3 +176,70 @@ def test_determinism_across_batch_sizes(run_dir, tmp_path):
     r2 = shuffle_one_feature(X, "var1", 0, scorer, baseline, shuffle_batch=4, **kw)
     np.testing.assert_allclose(r1.record_stats["iqr"], r2.record_stats["iqr"])
     assert r1.summary["mean_record_std"] == pytest.approx(r2.summary["mean_record_std"])
+
+
+def test_scorer_mismatch_raises_by_default(tmp_path):
+    """Stored baseline scores must match the scoring plugin unless explicitly downgraded."""
+    n = 100
+    df = pd.DataFrame({
+        "var1": np.linspace(0, 1, n),
+        "var2": np.linspace(1, 2, n),
+    })
+    true_pred = 0.5 * df["var1"] + 0.2 * df["var2"]
+    df["target"] = true_pred
+    df["target_pred"] = true_pred + 0.25
+    data_path = tmp_path / "bad_scored.parquet"
+    df.to_parquet(data_path, index=False)
+
+    model_path = tmp_path / "model.json"
+    model_path.write_text(json.dumps({"coefs": {"var1": 0.5, "var2": 0.2}}))
+    cfg = {
+        "run": {"name": "bad_baseline", "output_dir": str(tmp_path / "runs"), "seed": 42},
+        "data": {"path": str(data_path), "format": "parquet"},
+        "schema": {"target_column": "target", "target_type": "regression",
+                   "feature_columns": ["var1", "var2"],
+                   "prediction_columns": ["target_pred"]},
+        "shuffling": {"n_shuffles": 2},
+        "scoring": {"plugin": {"module": "in_shuff_synthetic_plugin",
+                               "function": "predict",
+                               "info_function": "model_info"},
+                    "model": {"path": str(model_path)}},
+        "metric_drop": {"enabled": False, "ranking_metric": {"name": "rmse"}},
+        "reporting": {"write_parquet": False, "write_markdown_report": False,
+                      "logging": {"level": "WARNING"}},
+    }
+    cfg_path = tmp_path / "bad_config.yaml"
+    cfg_path.write_text(yaml.safe_dump(cfg))
+
+    from input_shuffling_v2.in_shuff_cli import main
+    with pytest.raises(ValueError, match="Scorer consistency check"):
+        main(["--config", str(cfg_path)])
+
+
+def test_stability_seed_is_process_stable():
+    from input_shuffling_v2.in_shuff_engine import FeatureResult
+    from input_shuffling_v2.in_shuff_stability import compute_stability
+
+    cfg = {
+        "run": {"seed": 123},
+        "importance": {"ranking_stat": "mean_record_iqr"},
+        "metric_drop": {"enabled": False},
+        "stability": {"enabled": True, "rankings_to_check": ["importance"],
+                      "resampling": {"B": 20, "bootstrap": {"sample_frac": 1.0}},
+                      "metrics": {"spearman": {"enabled": True},
+                                  "kendall_tau": {"enabled": False},
+                                  "top_k_jaccard": {"enabled": False},
+                                  "bottom_k_jaccard": {"enabled": False},
+                                  "pairwise_order_consistency": {"enabled": False}},
+                      "consensus_ranking": {"method": "median_rank"}},
+    }
+    results = [
+        FeatureResult("a", {}, {"iqr": np.array([3.0, 2.0, 1.0])}),
+        FeatureResult("b", {}, {"iqr": np.array([2.0, 1.0, 0.5])}),
+        FeatureResult("c", {}, {"iqr": np.array([1.0, 0.5, 0.1])}),
+    ]
+
+    s1, r1 = compute_stability(results, None, cfg)
+    s2, r2 = compute_stability(results, None, cfg)
+    pd.testing.assert_frame_equal(s1, s2)
+    pd.testing.assert_frame_equal(r1, r2)

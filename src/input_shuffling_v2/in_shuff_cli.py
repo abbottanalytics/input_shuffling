@@ -127,13 +127,22 @@ def main(argv: list[str] | None = None) -> Path:
             n_check = min(len(df), 2000)
             recomputed = scorer(df[feature_cols].head(n_check))
             max_diff = float(np.max(np.abs(recomputed - baseline[:n_check])))
-            if max_diff > 1e-6:
-                logger.warning(
+            tolerance = float(baseline_cfg.get("scorer_tolerance", 1e-6))
+            mismatch_action = str(baseline_cfg.get("scorer_mismatch", "error")).lower()
+            if mismatch_action not in {"error", "warn"}:
+                raise ValueError(
+                    "scoring.baseline.scorer_mismatch must be 'error' or 'warn'")
+            if max_diff > tolerance:
+                msg = (
                     f"Scorer consistency check: recomputed scores differ from the "
                     f"stored '{pred_col}' column (max |diff| = {max_diff:.6g} over "
                     f"{n_check} rows). Check that scoring.model.path is the model "
-                    "that produced this column. Disable with "
-                    "scoring.baseline.verify_scorer: false.")
+                    "that produced this column. Set "
+                    "scoring.baseline.scorer_mismatch: warn to continue anyway, "
+                    "or disable with scoring.baseline.verify_scorer: false.")
+                if mismatch_action == "error":
+                    raise ValueError(msg)
+                logger.warning(msg)
             else:
                 logger.info("Scorer consistency check passed "
                             f"(max |diff| = {max_diff:.2g} over {n_check} rows).")

@@ -87,11 +87,23 @@ def generate_buckets(df: pd.DataFrame, cfg: dict, pred_col: str) -> list[dict]:
                                (b == bucket_id), s, pred_col)
             elif scheme["type"] == "top_pct":
                 pct = float(scheme["pct"])
-                mask = s >= s.quantile(1 - pct)
+                if scheme.get("include_ties", False):
+                    mask = s >= s.quantile(1 - pct)
+                else:
+                    k = max(1, int(round(len(s) * pct)))
+                    selected = s.sort_values(ascending=False, kind="stable").index[:k]
+                    mask = pd.Series(False, index=df.index)
+                    mask.loc[selected] = True
                 add_bucket(name, by, pred_col, "top_pct", f"top_{pct:.0%}", mask, s, pred_col)
             elif scheme["type"] == "bottom_pct":
                 pct = float(scheme["pct"])
-                mask = s <= s.quantile(pct)
+                if scheme.get("include_ties", False):
+                    mask = s <= s.quantile(pct)
+                else:
+                    k = max(1, int(round(len(s) * pct)))
+                    selected = s.sort_values(ascending=True, kind="stable").index[:k]
+                    mask = pd.Series(False, index=df.index)
+                    mask.loc[selected] = True
                 add_bucket(name, by, pred_col, "bottom_pct", f"bottom_{pct:.0%}", mask, s, pred_col)
             else:
                 raise ValueError(f"Unsupported prediction bucket scheme: {scheme['type']}")

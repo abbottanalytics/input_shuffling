@@ -84,3 +84,41 @@ def test_legacy_score_alias_and_derived_pred_col(run_dir):
 
 def test_report_written(run_dir):
     assert (run_dir / "report.md").exists()
+
+
+def test_unsupported_shuffle_config_rejected(tmp_path):
+    from input_shuffling_v2.in_shuff_config import load_config
+
+    model_path = tmp_path / "model.joblib"
+    model_path.write_text("placeholder")
+    cfg = {
+        "data": {"path": str(tmp_path / "scored.csv")},
+        "schema": {"target_column": "y", "target_type": "binary",
+                   "feature_columns": ["x"], "prediction_columns": ["y_prob"]},
+        "scoring": {"model": {"path": str(model_path)}},
+        "shuffling": {"n_shuffles": 3, "shuffle_scope": "within_bucket"},
+    }
+    cfg_path = tmp_path / "bad_shuffle.yaml"
+    cfg_path.write_text(yaml.safe_dump(cfg))
+
+    with pytest.raises(ValueError, match="Unsupported shuffling.shuffle_scope"):
+        load_config(cfg_path)
+
+
+def test_regression_default_ranking_metric_rejected(tmp_path):
+    from input_shuffling_v2.in_shuff_config import load_config
+
+    model_path = tmp_path / "model.joblib"
+    model_path.write_text("placeholder")
+    cfg = {
+        "data": {"path": str(tmp_path / "scored.csv")},
+        "schema": {"target_column": "y", "target_type": "regression",
+                   "feature_columns": ["x"], "prediction_columns": ["y_pred"]},
+        "scoring": {"model": {"path": str(model_path)}},
+        "metric_drop": {"enabled": True},
+    }
+    cfg_path = tmp_path / "bad_regression_metric.yaml"
+    cfg_path.write_text(yaml.safe_dump(cfg))
+
+    with pytest.raises(ValueError, match="not valid for regression"):
+        load_config(cfg_path)

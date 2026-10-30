@@ -21,6 +21,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from input_shuffling_v2.in_shuff_io import validate_prediction_scores, validate_schema_consistency  # noqa: E402
+from input_shuffling_v2.in_shuff_bucketing import generate_buckets  # noqa: E402
 
 
 def _base_cfg(**schema_extra):
@@ -155,3 +156,29 @@ def test_label_prediction_column_fails_fast(flat_file_setup):
 
     with pytest.raises(ValueError, match="class-label column"):
         main(["--config", str(cfg_path)])
+
+
+def test_prediction_pct_buckets_are_exact_size_by_default():
+    df = pd.DataFrame({"score": [1.0] * 50 + list(np.linspace(0.49, 0.0, 50))})
+    cfg = {
+        "bucketing": {"enabled": True, "always_include_all": False,
+                      "specs": [{"name": "top5", "by": "prediction",
+                                 "scheme": {"type": "top_pct", "pct": 0.05}},
+                                {"name": "bottom5", "by": "prediction",
+                                 "scheme": {"type": "bottom_pct", "pct": 0.05}}]},
+    }
+    buckets = generate_buckets(df, cfg, pred_col="score")
+    counts = {b["bucket_spec"]: b["n_rows_bucket"] for b in buckets}
+    assert counts == {"top5": 5, "bottom5": 5}
+
+
+def test_prediction_pct_buckets_can_include_ties():
+    df = pd.DataFrame({"score": [1.0] * 50 + list(np.linspace(0.49, 0.0, 50))})
+    cfg = {
+        "bucketing": {"enabled": True, "always_include_all": False,
+                      "specs": [{"name": "top5", "by": "prediction",
+                                 "scheme": {"type": "top_pct", "pct": 0.05,
+                                            "include_ties": True}}]},
+    }
+    buckets = generate_buckets(df, cfg, pred_col="score")
+    assert buckets[0]["n_rows_bucket"] == 50
