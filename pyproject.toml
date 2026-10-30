@@ -18,10 +18,10 @@ dependencies = [
     "scikit-learn>=1.0",
     "pyyaml>=5.4",
     "joblib>=1.0",
+    "pyarrow>=8",                        # parquet I/O; written by default
 ]
 
 [project.optional-dependencies]
-parquet = ["pyarrow>=8"]
 pmml = ["pypmml>=1.5", "nyoka>=5.4"]   # pypmml also needs a Java runtime
 dev = ["pytest>=7"]
 

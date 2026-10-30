@@ -21,8 +21,12 @@ SD as complementary diagnostic — see the book-chapter recommendation).
 ```bash
 git clone https://github.com/abbottanalytics/input_shuffling.git
 cd input_shuffling
-pip install -e .            # add [pmml] for KNIME/PMML models, [parquet] for parquet I/O, [dev] for pytest
+pip install -e .            # add [pmml] for KNIME/PMML models, [dev] for pytest
 ```
+
+On Python 3.10 with a very new macOS, SciPy 1.15 can fail to import
+(`dlopen ... zero-fill section type`). Installing `scipy==1.14.1`, or using
+Python 3.11+, fixes it.
 
 ## Try it: sample data with known answers
 
