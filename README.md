@@ -16,16 +16,71 @@ v1 `input_shuffling` tool implementing the full v0.6 config specification.
 The default ranking statistic is **`mean_record_iqr`** (IQR as primary metric,
 SD as complementary diagnostic — see the book-chapter recommendation).
 
-## Usage
+## Install
 
-From `Analytics Projects/`:
-
+<!-- TODO(Dean): confirm the repository URL once published -->
 ```bash
-./run_input_shuffling_v2.sh                                            # fast config
-./run_input_shuffling_v2.sh input_shuffling_v2/configs/kddcup1998_target_b.yaml   # full (50 shuffles)
+git clone https://github.com/abbottanalytics/input_shuffling_v2.git
+cd input_shuffling_v2
+pip install -e .            # add [pmml] for KNIME/PMML models, [parquet] for parquet I/O, [dev] for pytest
 ```
 
-Outputs land in `input_shuffling_v2/runs/<name>__<timestamp>/`.
+## Try it: sample data with known answers
+
+```bash
+python examples/sample_donor/in_shuff_run_sample.py
+```
+
+Synthetic donor data with a known true model, three fitted models
+(logistic, random forest, GBM), and the expected importance rankings. See
+[examples/sample_donor/README.md](examples/sample_donor/README.md).
+
+## Use from Python (notebooks)
+
+Any callable that maps a DataFrame to a 1-D array of scores can be shuffled —
+a fitted model, a pipeline, or a combined score such as
+P(response) × predicted amount:
+
+```python
+from input_shuffling_v2.in_shuff_engine import run_engine
+from input_shuffling_v2.in_shuff_importance import build_feature_summary, record_stat_matrix
+
+cfg = {
+    "run": {"seed": 42},
+    "shuffling": {"n_shuffles": 50},
+    "importance": {"eps": 0.01, "ranking_stat": "mean_record_iqr"},
+    "performance": {"shuffle_batch": 10, "n_jobs": 1},
+    "schema": {"prediction_columns": ["score"]},
+}
+scorer = lambda df: model.predict_proba(df[features])[:, 1]
+X = test_df[features].reset_index(drop=True)
+baseline = scorer(X)
+
+results = run_engine(X, [(f, i) for i, f in enumerate(features)], scorer, baseline, cfg)
+importance = build_feature_summary(results, cfg)      # ranked table
+record_iqr = record_stat_matrix(results, "iqr")       # records x features
+```
+
+- `n_jobs` must be 1 with an in-memory scorer (parallel workers rebuild the
+  scorer from the config's plugin).
+- Pass `metric_fns={"name": fn}` (fn: scores → float) to get a per-shuffle
+  metric in each result's `metric_values`, e.g. AUC or net revenue.
+- Importance for a segment (e.g. top 30% of scores) is the mean of
+  `record_iqr` over that segment's rows.
+
+## Command line (config-driven)
+
+```bash
+python -m input_shuffling_v2.in_shuff_cli --config configs/minimal_example.yaml
+```
+
+Relative `run.output_dir` resolves against the repository root in a source
+checkout, else against the current directory. Outputs land in
+`<output_dir>/<name>__<timestamp>/`.
+
+The other files in `configs/` are the author's project configs and point at
+data that is not in this repository; use them as templates.
+`run_input_shuffling_v2.sh` is the author's wrapper for that layout.
 
 ## What v2 adds over v1
 

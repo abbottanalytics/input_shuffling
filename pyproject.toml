@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "input-shuffling"
+version = "2.0.0"
+description = "Model-agnostic variable importance via input shuffling (per-record prediction instability)"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "Dean Abbott", email = "dean@abbottanalytics.com" }]
+# TODO(Dean): add `license = ...` once the LICENSE file is chosen
+dependencies = [
+    "numpy>=1.21",
+    "pandas>=1.3",
+    "scipy>=1.7",
+    "scikit-learn>=1.0",
+    "pyyaml>=5.4",
+    "joblib>=1.0",
+]
+
+[project.optional-dependencies]
+parquet = ["pyarrow>=8"]
+pmml = ["pypmml>=1.5", "nyoka>=5.4"]   # pypmml also needs a Java runtime
+dev = ["pytest>=7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

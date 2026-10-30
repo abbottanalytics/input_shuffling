@@ -45,10 +45,17 @@ def setup_logger(cfg: dict) -> logging.Logger:
 
 
 def make_run_dir(cfg: dict) -> Path:
-    # __file__ = input_shuffling_v2/src/input_shuffling_v2/cli.py
-    # parents[2] = the input_shuffling_v2 project root
-    project_root = Path(__file__).resolve().parents[2]
-    base = project_root / cfg["run"]["output_dir"]
+    # Absolute output_dir is used as-is. A relative one resolves against the
+    # repo root when running from a source checkout (parents[2] holds
+    # pyproject.toml), else against the current directory (pip-installed).
+    output_dir = Path(cfg["run"]["output_dir"]).expanduser()
+    if output_dir.is_absolute():
+        base = output_dir
+    else:
+        project_root = Path(__file__).resolve().parents[2]
+        if not (project_root / "pyproject.toml").exists():
+            project_root = Path.cwd()
+        base = project_root / output_dir
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_dir = base / f"{cfg['run']['name']}__{ts}"
     run_dir.mkdir(parents=True, exist_ok=True)

@@ -8,3 +8,11 @@ __pycache__/
 
 # macOS
 .DS_Store
+
+# Sample example outputs (regenerable)
+examples/sample_donor/output/
+
+# Packaging
+build/
+dist/
+*.egg-info/

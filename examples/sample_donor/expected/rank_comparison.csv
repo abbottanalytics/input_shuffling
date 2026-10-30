@@ -1,0 +1,10 @@
+feature,oracle,logistic,random_forest,gbm
+RECENCY,1,1,1,1
+HOMEOWNER,2,2,3,2
+WEALTH,3,3,2,3
+FREQUENCY,4,4,5,5
+LASTGIFT,5,5,4,4
+AGE,6,7,8,9
+AVGGIFT,7,6,6,6
+NOISE_A,8,9,7,7
+NOISE_B,9,8,9,8

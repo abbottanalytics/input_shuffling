@@ -1,0 +1,9 @@
+{
+  "python": "3.10.9",
+  "numpy": "1.26.4",
+  "pandas": "2.3.3",
+  "scikit-learn": "1.4.0",
+  "random_state": 2026,
+  "n_shuffles": 50,
+  "top_fraction": 0.3
+}
