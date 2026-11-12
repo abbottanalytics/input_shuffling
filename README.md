@@ -16,6 +16,9 @@ v1 `input_shuffling` tool implementing the full v0.6 config specification.
 The default ranking statistic is **`mean_record_iqr`** (IQR as primary metric,
 SD as complementary diagnostic — see the book-chapter recommendation).
 
+For what the method measures, how it compares with permutation importance
+and SHAP, and its limits, see **[docs/input_shuffling_method.md](docs/input_shuffling_method.md)**.
+
 ## Install
 
 ```bash
